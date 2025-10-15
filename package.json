@@ -5,6 +5,9 @@
   "description": "Changes the layout of selected text. Requires Accessibility access",
   "icon": "punto-icon.png",
   "author": "red.avtovo",
+  "contributors": [
+    "andrey_bardashevsky"
+  ],
   "categories": [
     "Productivity",
     "System"
@@ -28,15 +31,19 @@
       "data": [
         {
           "title": "⌘Space",
-          "value": "command"
+          "value": "to key code 49 using command down"
         },
         {
           "title": "⌃Space",
-          "value": "control"
+          "value": "to key code 49 using control down"
         },
         {
           "title": "⌥Space",
-          "value": "option"
+          "value": "to key code 49 using option down"
+        },
+        {
+          "title": "^⌥⌘⇧Space",
+          "value": "to key code 49 using {control down, option down, command down, shift down}"
         }
       ],
       "default": "control"
@@ -62,7 +69,7 @@
         },
         {
           "title": "Ukrainian",
-          "value": "Ukrainian - PC"
+          "value": "Ukrainian-PC"
         },
         {
           "title": "Ukrainian - Legacy",
@@ -93,7 +100,8 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.89.0"
+    "@raycast/api": "^1.103.3",
+    "@raycast/utils": "^2.2.1"
   },
   "devDependencies": {
     "@types/node": "22.10.7",
