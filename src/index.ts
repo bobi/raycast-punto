@@ -21,6 +21,9 @@ enum Layout {
   LAT = "LAT",
   CYR = "CYR",
 }
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 export default async function main() {
   // genMap();
   // return;
@@ -82,8 +85,8 @@ async function switchKeyboardLayout(
 
   while (attempts > 0) {
     const modifierKey = preferences.layoutSwitchModifier;
-    await runAppleScript(`tell application "System Events" ${modifierKey}`,
-    );
+    await runAppleScript(`tell application "System Events" ${modifierKey}`);
+    await delay(200);
     const activeLayoutName = await getActiveLayoutName();
     console.log("active layout after switch is " + activeLayoutName);
     if (activeLayoutName === targetLayoutName) {
