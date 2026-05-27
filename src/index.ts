@@ -48,7 +48,7 @@ export default async function main() {
 }
 
 function switchStringLayout(string: string): string {
-  const chars: string[] = string.split("");
+  const chars: string[] = [...string];
   return chars.map((ch) => switchCharacterLayout(ch)).join("");
 }
 
