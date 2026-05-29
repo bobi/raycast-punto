@@ -4,13 +4,12 @@ import {
   getSelectedText,
   getPreferenceValues,
 } from "@raycast/api";
-import { runAppleScript } from "@raycast/utils";
 import { en_ru, ru_en } from "./Dict";
-import { exec as Exec } from "child_process";
-import { promisify } from "util";
+import { AppleScriptLayoutManager } from "./AppleScriptLayoutManager";
+import { KeyboardSwitcherLayoutManager } from "./KeyboardSwitcherLayoutManager";
 
-const exec = promisify(Exec);
 interface Preferences {
+  layoutManager: "appleScript" | "keyboardSwitcher";
   layoutSwitchModifier: string;
   latLayoutName: string;
   cyrLayoutName: string;
@@ -21,8 +20,6 @@ enum Layout {
   LAT = "LAT",
   CYR = "CYR",
 }
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export default async function main() {
   // genMap();
@@ -56,13 +53,20 @@ async function switchKeyboardLayout(
   preferences: Preferences,
   targetLayout: Layout,
 ): Promise<void> {
-  const languages = await getInstalledLayoutNames();
+  const layoutManager =
+    preferences.layoutManager === "keyboardSwitcher"
+      ? new KeyboardSwitcherLayoutManager()
+      : new AppleScriptLayoutManager(preferences.layoutSwitchModifier);
+  const languages = await layoutManager.getInstalledLayoutNames();
+
   console.log("installed layout names are " + languages.join(", "));
   console.log("target layout is " + targetLayout);
+
   const targetLayoutName =
     targetLayout === Layout.LAT
       ? preferences.latLayoutName
       : preferences.cyrLayoutName;
+
   if (!languages.includes(targetLayoutName)) {
     await showHUD(
       "Layout " +
@@ -72,36 +76,17 @@ async function switchKeyboardLayout(
     return;
   }
 
-  const currentLayoutName = await getActiveLayoutName();
-  console.log("current layout name is " + currentLayoutName);
+  const success = await layoutManager.switchLayout(targetLayoutName);
 
-  if (currentLayoutName === targetLayoutName) {
-    console.log("already in target layout");
-    return;
-  }
-
-  console.log("switching to " + targetLayoutName);
-  let attempts = languages.length;
-
-  while (attempts > 0) {
-    const modifierKey = preferences.layoutSwitchModifier;
-    await runAppleScript(`tell application "System Events" ${modifierKey}`);
-    await delay(200);
-    const activeLayoutName = await getActiveLayoutName();
-    console.log("active layout after switch is " + activeLayoutName);
-    if (activeLayoutName === targetLayoutName) {
-      if (preferences.showSuccessHUD) await showHUD("Layout switched!");
-      console.log("layout switched");
-      return;
+  if (success) {
+    if (preferences.showSuccessHUD) {
+      await showHUD("Layout switched!");
     }
-    if (currentLayoutName === activeLayoutName) {
-      break;
-    }
-    attempts--;
+    console.log("layout switched");
+  } else {
+    await showHUD("Failed to switch layout, please check the preferences");
+    console.log("failed to switch layout");
   }
-
-  await showHUD("Failed to switch layout, please check the preferences");
-  console.log("failed to switch layout");
 }
 
 function detectLayout(input: string): Layout {
@@ -113,30 +98,10 @@ function detectLayout(input: string): Layout {
 
 function switchCharacterLayout(char: string): string {
   if (en_ru.has(char)) {
-    console.log(char + " detected in en dict")
+    console.log(char + " detected in en dict");
     return en_ru.get(char) ?? char;
   } else {
     console.log(char + " is probably detected in ru dict");
     return ru_en.get(char) ?? char;
   }
-}
-
-async function getInstalledLayoutNames(): Promise<string[]> {
-  const result = await exec(
-    `defaults read ~/Library/Preferences/com.apple.HIToolbox.plist AppleEnabledInputSources`,
-  );
-  return result.stdout
-    .split("\n")
-    .filter((line) => line.includes("KeyboardLayout Name"))
-    .map((line) => line.split("=")[1].trim().replace(/[;"']/g, ""));
-}
-
-async function getActiveLayoutName(): Promise<string> {
-  const result = await exec(
-    `defaults read ~/Library/Preferences/com.apple.HIToolbox.plist AppleSelectedInputSources`,
-  );
-  return result.stdout
-    .split("\n")
-    .filter((line) => line.includes("KeyboardLayout Name"))
-    .map((line) => line.split("=")[1].trim().replace(/[;"']/g, ""))[0];
 }

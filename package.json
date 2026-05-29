@@ -23,6 +23,24 @@
   ],
   "preferences": [
     {
+      "name": "layoutManager",
+      "title": "Layout Manager",
+      "description": "Choose the layout manager to use. 'keyboardSwitcher' requires 'brew install lutzifer/tap/keyboard-switcher'",
+      "type": "dropdown",
+      "required": true,
+      "data": [
+        {
+          "title": "AppleScript",
+          "value": "appleScript"
+        },
+        {
+          "title": "keyboardSwitcher",
+          "value": "keyboardSwitcher"
+        }
+      ],
+      "default": "appleScript"
+    },
+    {
       "name": "layoutSwitchModifier",
       "title": "Layout Switch Shortcut",
       "description": "The shortcut to switch the layout of the selected text",

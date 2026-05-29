@@ -7,8 +7,8 @@ export function genMap() {
   let ruEnMap = "";
   let enRuMap = "";
   for (let i = 0; i < enLayout.length; i++) {
-    const r = ruLayout[i].replace("\\", "\\\\").replace('"', '\\"');
-    const e = enLayout[i].replace("\\", "\\\\").replace('"', '\\"');
+    const r = ruLayout[i].replace("\\", "\\\\").replace('"', String.raw`\"`);
+    const e = enLayout[i].replace("\\", "\\\\").replace('"', String.raw`\"`);
     if (e != r) {
       ruEnMap += '["' + r + '","' + e + '"],\n';
       enRuMap += '["' + e + '","' + r + '"],\n';
@@ -19,6 +19,7 @@ export function genMap() {
 }
 
 export const ru_en = new Map([
+  ["ґ", "`"],
   ["]", "`"],
   ["[", "~"],
   ['"', "@"],
@@ -101,6 +102,7 @@ export const ru_en = new Map([
 ]);
 
 export const en_ru = new Map([
+  ["`", "ґ"],
   ["`", "]"],
   ["~", "["],
   ["@", '"'],
@@ -160,8 +162,8 @@ export const en_ru = new Map([
   ["L", "Д"],
   [":", "Ж"],
   ['"', "Є"],
-  ['æ', "э"],
-  ['Æ', "Э"],
+  ["æ", "э"],
+  ["Æ", "Э"],
   ["z", "я"],
   ["x", "ч"],
   ["c", "с"],
